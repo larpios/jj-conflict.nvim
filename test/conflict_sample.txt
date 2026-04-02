@@ -1,0 +1,12 @@
+<<<<<<< conflict 1 of 1
+%%%%%%% diff from: vpxusssl 38d49363 "merge base"
+\\\\\\\        to: rtsqusxu 2768b0b9 "commit A"
+ apple
+-grape
++grapefruit
+ orange
++++++++ ysrnknol 7a20f389 "commit B"
+APPLE
+GRAPE
+ORANGE
+>>>>>>> conflict 1 of 1 ends

@@ -13,7 +13,7 @@ diffs rather than just the final content:
 >
   <<<<<<< conflict 1 of 1
   %%%%%%% diff from: COMMIT1 "base commit"
-  \\\\\\        to: COMMIT2 "our commit"
+  \\\\\\\        to: COMMIT2 "our commit"
   -old line
   +new line
   +++++++ COMMIT3 "their commit"
