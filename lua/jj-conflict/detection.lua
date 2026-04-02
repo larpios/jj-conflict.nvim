@@ -1,16 +1,6 @@
 local M = {}
 
-M.patterns = {
-    start = "^<<<<<<<[<]*%s*[Cc]onflict%s+(%d+)%s+of%s+(%d+)",
-    diff_start = "^%%%%%%%[%%]*.*diff%s+from:", 
-    diff_to = "^\\\\\\\\\\\\\\%s*to:", 
-    snapshot_start = "^%+%+%+%+%+%+%+[%+]*",
-    end_marker = "^>>>>>>>[>]*.*[Ee]nds?",
-}
-
---- Parse commit ID and message safely
 function M.parse_label(line)
-	-- Improved pattern to handle varied spacing and missing quotes
 	local commit_id, msg = string.match(line, '([a-z0-9]+)%s+"?([^"]*)"?')
 	return commit_id or "unknown", msg or ""
 end
@@ -27,19 +17,19 @@ function M.detect_conflicts(bufnr)
 	local current_section = nil
 
 	for i, line in ipairs(lines) do
-		local lnum = i - 1 -- 0-indexed line number for Neovim API
+		local lnum = i - 1
 
-		-- Match against patterns
-		local start_id, total = line:match(M.patterns.start)
-		local is_diff_from = line:match(M.patterns.diff_start)
-		local is_diff_to = line:match(M.patterns.diff_to)
-		local is_snapshot = line:match(M.patterns.snapshot_start)
-		local is_end = line:match(M.patterns.end_marker)
+		local is_start = line:find("<<<<<<<", 1, true)
+		local is_diff_from = line:find("%%%%%%%", 1, true)
+		local is_diff_to = line:find([[\\\\\\\]], 1, true)
+		local is_snapshot = line:find("+++++++", 1, true)
+		local is_end = line:find(">>>>>>>", 1, true)
 
-		if start_id then
+		if is_start then
+			local id, total = line:match("[Cc]onflict%s+(%d+)%s+of%s+(%d+)")
 			current_conflict = {
-				id = tonumber(start_id),
-				total = tonumber(total),
+				id = tonumber(id) or 0,
+				total = tonumber(total) or 0,
 				start_line = lnum,
 				ours = { lines = {} },
 				theirs = { lines = {} },
@@ -57,9 +47,11 @@ function M.detect_conflicts(bufnr)
 				table.insert(conflicts, current_conflict)
 				current_conflict = nil
 				current_section = nil
-			elseif current_section == "ours" and not is_diff_to then
-				-- logic for parsing diff lines (+/-)
-				table.insert(current_conflict.ours.lines, line)
+			elseif current_section == "ours" then
+				-- Skip the 'to:' marker line, but capture the actual diff lines
+				if not is_diff_to then
+					table.insert(current_conflict.ours.lines, line)
+				end
 			elseif current_section == "theirs" then
 				table.insert(current_conflict.theirs.lines, line)
 			end
@@ -68,7 +60,6 @@ function M.detect_conflicts(bufnr)
 	return conflicts
 end
 
--- Refactored to avoid redundant detection logic
 function M.get_conflict_at_cursor(bufnr)
 	bufnr = bufnr or vim.api.nvim_get_current_buf()
 	local cursor = vim.api.nvim_win_get_cursor(0)
@@ -97,11 +88,10 @@ end
 function M.start_autocmds()
 	local group = vim.api.nvim_create_augroup("JjConflictDetection", { clear = true })
 
-	vim.api.nvim_create_autocmd({ "BufReadPost", "BufWritePost", "TextChanged" }, {
+	vim.api.nvim_create_autocmd({ "BufReadPost", "BufWritePost", "TextChanged", "BufEnter" }, {
 		group = group,
 		pattern = "*",
 		callback = function(args)
-			-- Use a small debounce or schedule to prevent lag on rapid typing
 			vim.schedule(function()
 				if not vim.api.nvim_buf_is_valid(args.buf) then
 					return
@@ -109,7 +99,6 @@ function M.start_autocmds()
 
 				local conflicts = M.detect_conflicts(args.buf)
 				local highlights = require("jj-conflict.highlights")
-
 				highlights.clear_highlights(args.buf)
 
 				if #conflicts > 0 then

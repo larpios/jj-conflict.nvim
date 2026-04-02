@@ -7,39 +7,41 @@ local navigation = require("jj-conflict.navigation")
 local function get_chosen_lines(conflict, choice)
 	local lines = {}
 
+	local function resolve_ours()
+		if conflict.ours and conflict.ours.lines then
+			for _, line in ipairs(conflict.ours.lines) do
+				local prefix = line:sub(1, 1)
+				-- Jujutsu diff markers: keep additions (+) and context (space), ignore removals (-)
+				if prefix == "+" or prefix == " " then
+					table.insert(lines, line:sub(2))
+				elseif prefix == "-" then
+					-- Do nothing, drop this line
+				else
+					-- Fallback for any malformed lines without a prefix
+					table.insert(lines, line)
+				end
+			end
+		end
+	end
+
+	local function resolve_theirs()
+		if conflict.theirs and conflict.theirs.lines then
+			for _, line in ipairs(conflict.theirs.lines) do
+				-- 'Theirs' is a raw snapshot, so we insert the line exactly as is
+				table.insert(lines, line)
+			end
+		end
+	end
+
 	if choice == "ours" then
-		if conflict.ours and conflict.ours.lines then
-			for _, line in ipairs(conflict.ours.lines) do
-				if line.type == "context" then
-					table.insert(lines, line.text)
-				elseif line.type == "add" then
-					table.insert(lines, line.text)
-				end
-			end
-		end
+		resolve_ours()
 	elseif choice == "theirs" then
-		if conflict.theirs and conflict.theirs.lines then
-			for _, line in ipairs(conflict.theirs.lines) do
-				table.insert(lines, line)
-			end
-		end
+		resolve_theirs()
 	elseif choice == "both" then
-		if conflict.ours and conflict.ours.lines then
-			for _, line in ipairs(conflict.ours.lines) do
-				if line.type == "context" then
-					table.insert(lines, line.text)
-				elseif line.type == "add" then
-					table.insert(lines, line.text)
-				end
-			end
-		end
-		if conflict.theirs and conflict.theirs.lines then
-			for _, line in ipairs(conflict.theirs.lines) do
-				table.insert(lines, line)
-			end
-		end
+		resolve_ours()
+		resolve_theirs()
 	elseif choice == "none" then
-		-- Nothing, just empty
+		-- Nothing, return empty table to delete the block
 	end
 
 	return lines
