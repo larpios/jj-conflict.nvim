@@ -24,7 +24,7 @@ diffs rather than just the final content:
 ==============================================================================
 SETUP                                                          *jj-conflict-setup*
 
->
+>lua
   require('jj-conflict').setup({
     default_mappings = true,
     default_commands = true,
@@ -49,45 +49,45 @@ SETUP                                                          *jj-conflict-setu
 Default mappings and commands can be disabled by setting them to false.
 
 ==============================================================================
-COMMANDS                                              *jj-conflict-commands*
+COMMANDS                                                  *jj-conflict-commands*
 
-:JjConflictChooseOurs                                             *:JjConflictChooseOurs*
+`:JjConflictChooseOurs`                                    *:JjConflictChooseOurs*
   Select the "ours" side (our changes from the diff section).
 
-:JjConflictChooseTheirs                                         *:JjConflictChooseTheirs*
+`:JjConflictChooseTheirs`                                *:JjConflictChooseTheirs*
   Select the "theirs" side (their changes from the snapshot section).
 
-:JjConflictChooseBoth                                           *:JjConflictChooseBoth*
+`:JjConflictChooseBoth`                                    *:JjConflictChooseBoth*
   Select both sides of the conflict.
 
-:JjConflictChooseNone                                           *:JjConflictChooseNone*
+`:JjConflictChooseNone`                                    *:JjConflictChooseNone*
   Select none of the conflict (remove all content).
 
-:JjConflictNextConflict                                       *:JjConflictNextConflict*
+`:JjConflictNextConflict`                                *:JjConflictNextConflict*
   Jump to the next conflict in the file.
 
-:JjConflictPrevConflict                                       *:JjConflictPrevConflict*
+`:JjConflictPrevConflict`                                *:JjConflictPrevConflict*
   Jump to the previous conflict in the file.
 
-:JjConflictList                                                     *:JjConflictList*
+`:JjConflictList`                                                *:JjConflictList*
   List all conflicts in the location list.
 
 ==============================================================================
-MAPPINGS                                              *jj-conflict-mappings*
+MAPPINGS                                                  *jj-conflict-mappings*
 
 The default buffer-local mappings (when default_mappings = true):
 
-  co  - Choose ours
-  ct  - Choose theirs
-  cb  - Choose both
-  c0  - Choose none
-  ]x  - Move to next conflict
-  [x  - Move to previous conflict
+  `co`  - Choose ours
+  `ct`  - choose theirs
+  `cb`  - choose both
+  `c0`  - choose none
+  `]x`  - move to next conflict
+  `[x`  - Move to previous conflict
 
 You can customize these mappings in the setup configuration or set
 default_mappings = false and create your own:
 
->
+>lua
   vim.keymap.set('n', 'co', '<Plug>(jj-conflict-ours)')
   vim.keymap.set('n', 'ct', '<Plug>(jj-conflict-theirs)')
   vim.keymap.set('n', 'cb', '<Plug>(jj-conflict-both)')
@@ -97,10 +97,10 @@ default_mappings = false and create your own:
 <
 
 ==============================================================================
-AUTOCOMMANDS                                          *jj-conflict-autocmds*
+AUTOCOMMANDS                                              *jj-conflict-autocmds*
 
 When a conflict is detected:
->
+>lua
   vim.api.nvim_create_autocmd('User', {
     pattern = 'JjConflictDetected',
     callback = function()
@@ -110,7 +110,7 @@ When a conflict is detected:
 <
 
 When all conflicts are resolved:
->
+>lua
   vim.api.nvim_create_autocmd('User', {
     pattern = 'JjConflictResolved',
     callback = function()
@@ -120,42 +120,44 @@ When all conflicts are resolved:
 <
 
 ==============================================================================
-API                                                        *jj-conflict-api*
+API                                                            *jj-conflict-api*
 
-jj-conflict.conflict_count([bufnr])                     *jj-conflict.conflict_count*
+conflict_count({bufnr})                             *jj-conflict.conflict_count*
   Returns the number of conflicts in the buffer.
-  Parameters:
-    bufnr (optional): buffer number, defaults to current buffer
+  Parameters: ~
+    • {bufnr} (`nil|integer`) buffer number, defaults to current buffer
 
-jj-conflict.has_conflicts([bufnr])                      *jj-conflict.has_conflicts*
-  Returns true if the buffer has conflicts, plus the list of conflicts.
+has_conflicts({bufnr})                               *jj-conflict.has_conflicts*
+  Returns: ~
+     `true` if the buffer has conflicts, plus the list of conflicts.
 
-jj-conflict.get_conflict_at_cursor([bufnr])   *jj-conflict.get_conflict_at_cursor*
-  Returns the conflict at the current cursor position.
+get_conflict_at_cursor({bufnr})             *jj-conflict.get_conflict_at_cursor*
+  Returns: ~
+    the conflict at the current cursor position.
 
 ==============================================================================
 HIGHLIGHTS                                              *jj-conflict-highlights*
 
 The plugin defines these highlight groups:
 
-  JjConflictMarker    - The <<<<<<< and >>>>>>> markers
-  JjConflictOurs      - The diff section (our changes)
-  JjConflictTheirs    - The snapshot section (their changes)
-  JjConflictLabel    - Commit info labels
-  JjConflictDiffAdd   - Added lines in diffs (+)
-  JjConflictDiffRemove - Removed lines in diffs (-)
+  `JjConflictMarker`     - The <<<<<<< and >>>>>>> markers
+  `JjConflictOurs`       - The diff section (our changes)
+  `JjConflictTheirs`     - The snapshot section (their changes)
+  `JjConflictLabel`      - Commit info labels
+  `JjConflictDiffAdd`    - Added lines in diffs (+)
+  `JjConflictDiffRemove` - Removed lines in diffs (-)
 
 You can customize these in your Neovim config or via the setup() function.
 
 ==============================================================================
-LIMITATIONS                                              *jj-conflict-limitations*
+LIMITATIONS                                            *jj-conflict-limitations*
 
 - Currently only supports the default jj "diff" conflict marker style
 - For conflicts with more than 2 sides, resolution picks the first diff + snapshot
 - Does not integrate with jj CLI (future feature)
 
 ==============================================================================
-LICENSE                                                  *jj-conflict-license*
+LICENSE                                                    *jj-conflict-license*
 
 MIT License
 
