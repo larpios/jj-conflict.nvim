@@ -1,7 +1,7 @@
 local M = {}
 
 _G.jj_conflict = setmetatable({}, {
-    __index = M
+	__index = M,
 })
 
 ---@class JjConflictConflictMapping
@@ -23,6 +23,7 @@ _G.jj_conflict = setmetatable({}, {
 ---@class JjConflictConfig
 ---@field default_mappings boolean Whether to automatically setup default mappings
 ---@field default_commands boolean Whether to automatically setup default commands
+---@field notify boolean Whether to show notifications
 ---@field highlights JjConflictHighlight Highlight groups
 ---@field mappings JjConflictConflictMapping Custom mappings
 
@@ -30,6 +31,7 @@ _G.jj_conflict = setmetatable({}, {
 local default_config = {
 	default_mappings = true,
 	default_commands = true,
+	notify = true,
 	highlights = {
 		ours = "DiffAdd",
 		theirs = "DiffText",
@@ -51,7 +53,9 @@ local default_config = {
 ---@param opts? JjConflictConfig
 function M.setup(opts)
 	M.config = vim.tbl_deep_extend("force", default_config, opts or {})
-    _G.jj_conflict.config = M.config
+	_G.jj_conflict.config = M.config
+
+    _G.jj_conflict.notify = M.config.notify and vim.notify or function() end
 
 	require("jj-conflict.highlights").setup()
 

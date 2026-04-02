@@ -18,7 +18,7 @@ function M.next()
 		end
 	end
 
-	vim.notify("No more conflicts", vim.log.levels.WARN)
+	_G.jj_conflict.notify("No more conflicts", vim.log.levels.WARN)
 end
 
 function M.prev()
@@ -37,7 +37,7 @@ function M.prev()
 		end
 	end
 
-	vim.notify("No previous conflicts", vim.log.levels.WARN)
+	_G.jj_conflict.notify("No previous conflicts", vim.log.levels.WARN)
 end
 
 function M.list()
@@ -58,9 +58,9 @@ function M.list()
 	if #qf_list > 0 then
 		vim.fn.setloclist(0, qf_list, "r")
 		vim.cmd("silent lopen")
-		vim.notify(string.format("Found %d conflicts", #conflicts))
+		_G.jj_conflict.notify(string.format("Found %d conflicts", #conflicts))
 	else
-		vim.notify("No conflicts found", vim.log.levels.INFO)
+		_G.jj_conflict.notify("No conflicts found", vim.log.levels.INFO)
 	end
 end
 

@@ -39,6 +39,8 @@ require('jj-conflict').setup({
 	default_mappings = true,
     -- Whether to automatically setup default commands
 	default_commands = true,
+    -- Whether to enable notifications
+    notify = true,
     -- Highlight groups
 	highlights = {
 		ours = "DiffAdd",
