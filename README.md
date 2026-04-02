@@ -33,23 +33,28 @@ A Neovim plugin to visualize and resolve Jujutsu (jj) merge conflicts, inspired 
 
 ```lua
 require('jj-conflict').setup({
-  default_mappings = true,   -- disable buffer local mapping
-  default_commands = true,   -- disable commands
-  disable_diagnostics = false,
-  highlights = {
-    ours = 'DiffAdd',
-    theirs = 'DiffText',
-    marker = 'CursorLine',
-    label = 'Comment',
-  },
-  mappings = {
-    ours = 'o',
-    theirs = 't',
-    both = 'b',
-    none = '0',
-    next = 'n',
-    prev = 'p',
-  }
+    -- Whether to automatically setup default mappings
+	default_mappings = true,
+    -- Whether to automatically setup default commands
+	default_commands = true,
+    -- Highlight groups
+	highlights = {
+		ours = "DiffAdd",
+		theirs = "DiffText",
+		marker = "CursorLine",
+		label = "Comment",
+		diff_remove = "DiffDelete",
+		diff_add = "DiffAdd",
+	},
+    -- Custom mappings
+	mappings = {
+		ours = "Ho",
+		theirs = "Ht",
+		both = "Hb",
+		none = "H0",
+		next = "Hn",
+		prev = "Hp",
+	},
 })
 ```
 
@@ -73,7 +78,7 @@ Unlike Git, Jujutsu uses a different conflict marker format that shows diffs:
 ```
 <<<<<<< conflict 1 of 1
 %%%%%%% diff from: abc123 "base commit"
-\\\\\\\\        to: def456 "our commit"
+\\\\\\\        to: def456 "our commit"
 -old line
 +new line
 +++++++ ghi789 "their commit"
@@ -82,7 +87,7 @@ their content here
 ```
 <<<<<<< conflict 1 of 1
 %%%%%%% diff from: abc123 "base commit"
-\\\\\        to: def456 "our commit"
+\\\\\\\        to: def456 "our commit"
 -old line
 +new line
 +++++++ ghi789 "their commit"

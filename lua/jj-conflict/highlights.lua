@@ -27,17 +27,17 @@ function M.highlight_conflict(bufnr, conflict)
 		local line = vim.api.nvim_buf_get_lines(bufnr, i, i + 1, false)[1] or ""
 		local hl_group = nil
 
-		if line:find("^<<<<<<<", 1, true) or line:find("^>>>>>>>", 1, true) then
+		if line:find("^<<<<<<<") or line:find("^>>>>>>>") then
 			hl_group = "JjConflictMarker"
-		elseif line:find("^%%%%%%%", 1, true) then
+		elseif line:find("^%%%%%%%%%%%%%%") then
 			hl_group = "JjConflictOurs"
-		elseif line:find([[^\\\\\\\]], 1, true) then
+		elseif line:find([[^\\\\\\\]]) then
 			hl_group = "JjConflictLabel"
-		elseif line:find("^+++++++", 1, true) then
+		elseif line:find("^%+%+%+%+%+%+%+") then
 			hl_group = "JjConflictTheirs"
 		elseif line:sub(1, 1) == "-" then
 			hl_group = "JjConflictDiffRemove"
-		elseif line:sub(1, 1) == "+" and not line:find("^+++++++", 1, true) then
+		elseif line:sub(1, 1) == "+" and not line:find("^%+%+%+%+%+%+%+") then
 			hl_group = "JjConflictDiffAdd"
 		end
 
