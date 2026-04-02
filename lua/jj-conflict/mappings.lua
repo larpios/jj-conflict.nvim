@@ -1,4 +1,5 @@
 local M = {}
+local config = require("jj-conflict.config")
 function M.setup()
 	local group = vim.api.nvim_create_augroup("JjConflictMappings", { clear = true })
 
@@ -39,7 +40,7 @@ function M.create_buffer_mappings(bufnr)
 		vim.keymap.set(mode, lhs, rhs, opts)
 	end
 
-	local cfg = _G.jj_conflict.config
+	local cfg = config.config
 	local maps = cfg.mappings
 
 	map(maps.ours, "<Cmd>JjConflictChooseOurs<CR>", { desc = "Choose our side of the conflict" })

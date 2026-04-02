@@ -2,6 +2,7 @@ local M = {}
 
 local detection = require("jj-conflict.detection")
 local highlights = require("jj-conflict.highlights")
+local util = require("jj-conflict.util")
 
 function M.next()
 	local bufnr = vim.api.nvim_get_current_buf()
@@ -18,7 +19,7 @@ function M.next()
 		end
 	end
 
-	_G.jj_conflict.notify("No more conflicts", vim.log.levels.WARN)
+	util.notify("No more conflicts", vim.log.levels.WARN)
 end
 
 function M.prev()
@@ -37,7 +38,7 @@ function M.prev()
 		end
 	end
 
-	_G.jj_conflict.notify("No previous conflicts", vim.log.levels.WARN)
+	util.notify("No previous conflicts", vim.log.levels.WARN)
 end
 
 function M.list()
@@ -58,9 +59,9 @@ function M.list()
 	if #qf_list > 0 then
 		vim.fn.setloclist(0, qf_list, "r")
 		vim.cmd("silent lopen")
-		_G.jj_conflict.notify(string.format("Found %d conflicts", #conflicts))
+		util.notify(string.format("Found %d conflicts", #conflicts))
 	else
-		_G.jj_conflict.notify("No conflicts found", vim.log.levels.INFO)
+		util.notify("No conflicts found", vim.log.levels.INFO)
 	end
 end
 

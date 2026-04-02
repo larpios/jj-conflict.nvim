@@ -3,6 +3,8 @@ local M = {}
 local detection = require("jj-conflict.detection")
 local highlights = require("jj-conflict.highlights")
 local navigation = require("jj-conflict.navigation")
+local config = require("jj-conflict.config")
+local util = require("jj-conflict.util")
 
 local function get_chosen_lines(conflict, choice)
 	local lines = {}
@@ -50,7 +52,7 @@ end
 function M.choose_ours()
 	local conflict = detection.get_conflict_at_cursor()
 	if not conflict then
-		_G.jj_conflict.notify("No conflict at cursor", vim.log.levels.WARN)
+		util.notify("No conflict at cursor", vim.log.levels.WARN)
 		return
 	end
 	M.resolve_conflict(conflict, "ours")
@@ -59,7 +61,7 @@ end
 function M.choose_theirs()
 	local conflict = detection.get_conflict_at_cursor()
 	if not conflict then
-		_G.jj_conflict.notify("No conflict at cursor", vim.log.levels.WARN)
+		util.notify("No conflict at cursor", vim.log.levels.WARN)
 		return
 	end
 	M.resolve_conflict(conflict, "theirs")
@@ -68,7 +70,7 @@ end
 function M.choose_both()
 	local conflict = detection.get_conflict_at_cursor()
 	if not conflict then
-		_G.jj_conflict.notify("No conflict at cursor", vim.log.levels.WARN)
+		util.notify("No conflict at cursor", vim.log.levels.WARN)
 		return
 	end
 	M.resolve_conflict(conflict, "both")
@@ -77,7 +79,7 @@ end
 function M.choose_none()
 	local conflict = detection.get_conflict_at_cursor()
 	if not conflict then
-		_G.jj_conflict.notify("No conflict at cursor", vim.log.levels.WARN)
+		util.notify("No conflict at cursor", vim.log.levels.WARN)
 		return
 	end
 	M.resolve_conflict(conflict, "none")
@@ -94,7 +96,7 @@ function M.resolve_conflict(conflict, choice)
 	local remaining = detection.count_conflicts(bufnr)
 	if remaining == 0 then
 		vim.api.nvim_exec_autocmds("User", { pattern = "JjConflictResolved", modeline = false })
-		_G.jj_conflict.notify("All conflicts resolved!", vim.log.levels.INFO)
+		util.notify("All conflicts resolved!", vim.log.levels.INFO)
 	end
 end
 
