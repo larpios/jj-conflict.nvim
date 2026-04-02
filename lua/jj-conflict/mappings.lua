@@ -1,7 +1,4 @@
 local M = {}
-
-local config = require("jj-conflict.init").config
-
 function M.setup()
 	local group = vim.api.nvim_create_augroup("JjConflictMappings", { clear = true })
 
@@ -25,36 +22,32 @@ function M.setup()
 end
 
 function M.create_buffer_mappings(bufnr)
-	local opts = { buffer = bufnr, silent = true, noremap = true }
+	---@class LocalMapOpts: vim.keymap.set.Opts
+	---@field mode? string
 
-	local cfg = require("jj-conflict.init").config
+	---@param opts? LocalMapOpts
+	local map = function(lhs, rhs, opts)
+		local default_opts = { buffer = bufnr, silent = true, noremap = true }
+		opts = vim.tbl_deep_extend("force", default_opts, opts or {})
+
+		local mode = "n"
+		if opts.mode then
+			mode = opts.mode
+			opts.mode = nil
+		end
+
+		vim.keymap.set(mode, lhs, rhs, opts)
+	end
+
+	local cfg = _G.jj_conflict.config
 	local maps = cfg.mappings
 
-	vim.keymap.set("n", maps.ours, "<Plug>(jj-conflict-ours)", opts)
-	vim.keymap.set("n", maps.theirs, "<Plug>(jj-conflict-theirs)", opts)
-	vim.keymap.set("n", maps.both, "<Plug>(jj-conflict-both)", opts)
-	vim.keymap.set("n", maps.none, "<Plug>(jj-conflict-none)", opts)
-	vim.keymap.set("n", "]" .. maps.next, "<Plug>(jj-conflict-next-conflict)", opts)
-	vim.keymap.set("n", "[" .. maps.prev, "<Plug>(jj-conflict-prev-conflict)", opts)
-
-	vim.keymap.set("n", "<Plug>(jj-conflict-ours)", function()
-		require("jj-conflict.resolution").choose_ours()
-	end, opts)
-	vim.keymap.set("n", "<Plug>(jj-conflict-theirs)", function()
-		require("jj-conflict.resolution").choose_theirs()
-	end, opts)
-	vim.keymap.set("n", "<Plug>(jj-conflict-both)", function()
-		require("jj-conflict.resolution").choose_both()
-	end, opts)
-	vim.keymap.set("n", "<Plug>(jj-conflict-none)", function()
-		require("jj-conflict.resolution").choose_none()
-	end, opts)
-	vim.keymap.set("n", "<Plug>(jj-conflict-next-conflict)", function()
-		require("jj-conflict.navigation").next()
-	end, opts)
-	vim.keymap.set("n", "<Plug>(jj-conflict-prev-conflict)", function()
-		require("jj-conflict.navigation").prev()
-	end, opts)
+	map(maps.ours, "<Cmd>JjConflictChooseOurs<CR>", { desc = "Choose our side of the conflict" })
+	map(maps.theirs, "<Cmd>JjConflictChooseTheirs<CR>", { desc = "Choose their side of the conflict" })
+	map(maps.both, "<Cmd>JjConflictChooseBoth<CR>", { desc = "Choose both sides of the conflict" })
+	map(maps.none, "<Cmd>JjConflictChooseNone<CR>", { desc = "Choose none of the conflict" })
+	map(maps.next, "<Cmd>JjConflictNextConflict<CR>", { desc = "Jump to next conflict" })
+	map(maps.prev, "<Cmd>JjConflictPrevConflict<CR>", { desc = "Jump to previous conflict" })
 end
 
 return M

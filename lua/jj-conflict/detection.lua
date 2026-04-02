@@ -19,11 +19,11 @@ function M.detect_conflicts(bufnr)
 	for i, line in ipairs(lines) do
 		local lnum = i - 1
 
-		local is_start = line:find("<<<<<<<", 1, true)
-		local is_diff_from = line:find("%%%%%%%", 1, true)
-		local is_diff_to = line:find([[\\\\\\\]], 1, true)
-		local is_snapshot = line:find("+++++++", 1, true)
-		local is_end = line:find(">>>>>>>", 1, true)
+		local is_start = line:find("^<<<<<<<")
+		local is_diff_from = line:find("^%%%%%%%%%%%%%%")
+		local is_diff_to = line:find([[^\\\\\\\]])
+		local is_snapshot = line:find("^%+%+%+%+%+%+%+")
+		local is_end = line:find("^>>>>>>>")
 
 		if is_start then
 			local id, total = line:match("[Cc]onflict%s+(%d+)%s+of%s+(%d+)")
