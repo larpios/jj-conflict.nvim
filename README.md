@@ -73,6 +73,15 @@ Unlike Git, Jujutsu uses a different conflict marker format that shows diffs:
 ```
 <<<<<<< conflict 1 of 1
 %%%%%%% diff from: abc123 "base commit"
+\\\\\\\\        to: def456 "our commit"
+-old line
++new line
++++++++ ghi789 "their commit"
+their content here
+>>>>>>> conflict 1 of 1 ends
+```
+<<<<<<< conflict 1 of 1
+%%%%%%% diff from: abc123 "base commit"
 \\\\\        to: def456 "our commit"
 -old line
 +new line
