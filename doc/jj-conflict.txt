@@ -1,0 +1,163 @@
+*jj-conflict.txt*    Visual conflict resolution for Jujutsu (jj) in Neovim
+
+==============================================================================
+INTRODUCTION                                                    *jj-conflict*
+
+jj-conflict.nvim is a Neovim plugin that provides visual conflict markers
+and resolution commands for Jujutsu (jj) conflicts, inspired by
+git-conflict.nvim.
+
+Unlike Git, Jujutsu uses a different conflict marker format that shows
+diffs rather than just the final content:
+
+>
+  <<<<<<< conflict 1 of 1
+  %%%%%%% diff from: COMMIT1 "base commit"
+  \\\\\\        to: COMMIT2 "our commit"
+  -old line
+  +new line
+  +++++++ COMMIT3 "their commit"
+  their content here
+  >>>>>>> conflict 1 of 1 ends
+<
+
+==============================================================================
+SETUP                                                          *jj-conflict-setup*
+
+>
+  require('jj-conflict').setup({
+    default_mappings = true,
+    default_commands = true,
+    disable_diagnostics = false,
+    highlights = {
+      ours = 'DiffAdd',
+      theirs = 'DiffText',
+      marker = 'CursorLine',
+      label = 'Comment',
+    },
+    mappings = {
+      ours = 'o',
+      theirs = 't',
+      both = 'b',
+      none = '0',
+      next = 'n',
+      prev = 'p',
+    }
+  })
+<
+
+Default mappings and commands can be disabled by setting them to false.
+
+==============================================================================
+COMMANDS                                              *jj-conflict-commands*
+
+:JjConflictChooseOurs                                             *:JjConflictChooseOurs*
+  Select the "ours" side (our changes from the diff section).
+
+:JjConflictChooseTheirs                                         *:JjConflictChooseTheirs*
+  Select the "theirs" side (their changes from the snapshot section).
+
+:JjConflictChooseBoth                                           *:JjConflictChooseBoth*
+  Select both sides of the conflict.
+
+:JjConflictChooseNone                                           *:JjConflictChooseNone*
+  Select none of the conflict (remove all content).
+
+:JjConflictNextConflict                                       *:JjConflictNextConflict*
+  Jump to the next conflict in the file.
+
+:JjConflictPrevConflict                                       *:JjConflictPrevConflict*
+  Jump to the previous conflict in the file.
+
+:JjConflictList                                                     *:JjConflictList*
+  List all conflicts in the location list.
+
+==============================================================================
+MAPPINGS                                              *jj-conflict-mappings*
+
+The default buffer-local mappings (when default_mappings = true):
+
+  co  - Choose ours
+  ct  - Choose theirs
+  cb  - Choose both
+  c0  - Choose none
+  ]x  - Move to next conflict
+  [x  - Move to previous conflict
+
+You can customize these mappings in the setup configuration or set
+default_mappings = false and create your own:
+
+>
+  vim.keymap.set('n', 'co', '<Plug>(jj-conflict-ours)')
+  vim.keymap.set('n', 'ct', '<Plug>(jj-conflict-theirs)')
+  vim.keymap.set('n', 'cb', '<Plug>(jj-conflict-both)')
+  vim.keymap.set('n', 'c0', '<Plug>(jj-conflict-none)')
+  vim.keymap.set('n', ']x', '<Plug>(jj-conflict-next-conflict)')
+  vim.keymap.set('n', '[x', '<Plug>(jj-conflict-prev-conflict)')
+<
+
+==============================================================================
+AUTOCOMMANDS                                          *jj-conflict-autocmds*
+
+When a conflict is detected:
+>
+  vim.api.nvim_create_autocmd('User', {
+    pattern = 'JjConflictDetected',
+    callback = function()
+      -- do something
+    end
+  })
+<
+
+When all conflicts are resolved:
+>
+  vim.api.nvim_create_autocmd('User', {
+    pattern = 'JjConflictResolved',
+    callback = function()
+      -- do something
+    end
+  })
+<
+
+==============================================================================
+API                                                        *jj-conflict-api*
+
+jj-conflict.conflict_count([bufnr])                     *jj-conflict.conflict_count*
+  Returns the number of conflicts in the buffer.
+  Parameters:
+    bufnr (optional): buffer number, defaults to current buffer
+
+jj-conflict.has_conflicts([bufnr])                      *jj-conflict.has_conflicts*
+  Returns true if the buffer has conflicts, plus the list of conflicts.
+
+jj-conflict.get_conflict_at_cursor([bufnr])   *jj-conflict.get_conflict_at_cursor*
+  Returns the conflict at the current cursor position.
+
+==============================================================================
+HIGHLIGHTS                                              *jj-conflict-highlights*
+
+The plugin defines these highlight groups:
+
+  JjConflictMarker    - The <<<<<<< and >>>>>>> markers
+  JjConflictOurs      - The diff section (our changes)
+  JjConflictTheirs    - The snapshot section (their changes)
+  JjConflictLabel    - Commit info labels
+  JjConflictDiffAdd   - Added lines in diffs (+)
+  JjConflictDiffRemove - Removed lines in diffs (-)
+
+You can customize these in your Neovim config or via the setup() function.
+
+==============================================================================
+LIMITATIONS                                              *jj-conflict-limitations*
+
+- Currently only supports the default jj "diff" conflict marker style
+- For conflicts with more than 2 sides, resolution picks the first diff + snapshot
+- Does not integrate with jj CLI (future feature)
+
+==============================================================================
+LICENSE                                                  *jj-conflict-license*
+
+MIT License
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:
