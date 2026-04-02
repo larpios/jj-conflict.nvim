@@ -4,14 +4,13 @@ local ns = vim.api.nvim_create_namespace("jj-conflict")
 M.ns = ns
 
 local default_highlights = {
-	Ours = { fg = "#50fa7b", bg = "#282a36", bold = true },
-	Theirs = { fg = "#ffb86c", bg = "#282a36", bold = true },
-	Marker = { fg = "#f8f8f2", bg = "#6272a4", bold = true },
-	Label = { fg = "#8be9fd", italic = true },
-	DiffRemove = { fg = "#ff5555", bg = "#2d1f1f" },
-	DiffAdd = { fg = "#50fa7b", bg = "#1f2f1f" },
+	Ours = { link = "DiffAdd" },
+	Theirs = { link = "DiffText" },
+	Marker = { link = "Title" },
+	Label = { link = "Comment" },
+	DiffRemove = { link = "DiffDelete" },
+	DiffAdd = { link = "DiffAdd" },
 }
-
 function M.setup()
 	for name, settings in pairs(default_highlights) do
 		vim.api.nvim_set_hl(0, "JjConflict" .. name, settings)
@@ -44,7 +43,7 @@ function M.highlight_conflict(bufnr, conflict)
 
 		if hl_group then
 			vim.api.nvim_buf_set_extmark(bufnr, ns, i, 0, {
-            end_col = #line,
+				end_col = #line,
 				hl_group = hl_group,
 				hl_eol = true,
 				priority = 100,
