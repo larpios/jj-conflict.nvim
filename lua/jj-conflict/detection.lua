@@ -1,99 +1,92 @@
 local M = {}
 
 M.patterns = {
-	start = "^<{7,}.*conflict%s+(%d+)%s+of%s+(%d+)",
-	diff_start = "^%{7,}.*diff%s+from:",
-	diff_to = "^\\{7,}.*to:",
-	snapshot_start = "^%+{7,}",
-	end_marker = "^>{7,}.*ends?$",
+    start = "^<<<<<<<[<]*%s*[Cc]onflict%s+(%d+)%s+of%s+(%d+)",
+    diff_start = "^%%%%%%%[%%]*.*diff%s+from:", 
+    diff_to = "^\\\\\\\\\\\\\\%s*to:", 
+    snapshot_start = "^%+%+%+%+%+%+%+[%+]*",
+    end_marker = "^>>>>>>>[>]*.*[Ee]nds?",
 }
+
+--- Parse commit ID and message safely
+function M.parse_label(line)
+	-- Improved pattern to handle varied spacing and missing quotes
+	local commit_id, msg = string.match(line, '([a-z0-9]+)%s+"?([^"]*)"?')
+	return commit_id or "unknown", msg or ""
+end
 
 function M.detect_conflicts(bufnr)
 	bufnr = bufnr or vim.api.nvim_get_current_buf()
-	local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+	if not vim.api.nvim_buf_is_valid(bufnr) then
+		return {}
+	end
 
+	local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
 	local conflicts = {}
 	local current_conflict = nil
 	local current_section = nil
 
 	for i, line in ipairs(lines) do
-		local start_match = string.match(line, M.patterns.start)
-		local diff_match = string.match(line, M.patterns.diff_start)
-		local diff_to_match = string.match(line, M.patterns.diff_to)
-		local snapshot_match = string.match(line, M.patterns.snapshot_start)
-		local end_match = string.match(line, M.patterns.end_marker)
+		local lnum = i - 1 -- 0-indexed line number for Neovim API
 
-		if start_match then
-			local conflict_num = tonumber(start_match)
+		-- Match against patterns
+		local start_id, total = line:match(M.patterns.start)
+		local is_diff_from = line:match(M.patterns.diff_start)
+		local is_diff_to = line:match(M.patterns.diff_to)
+		local is_snapshot = line:match(M.patterns.snapshot_start)
+		local is_end = line:match(M.patterns.end_marker)
+
+		if start_id then
 			current_conflict = {
-				id = conflict_num,
-				start_line = i - 1,
-				ours = nil,
-				theirs = nil,
-				ours_label = nil,
-				theirs_label = nil,
+				id = tonumber(start_id),
+				total = tonumber(total),
+				start_line = lnum,
+				ours = { lines = {} },
+				theirs = { lines = {} },
 			}
-			current_section = "start"
+			current_section = "metadata"
 		elseif current_conflict then
-			if diff_match then
-				local commit_id, msg = M.parse_label(line, "diff from:")
-				current_conflict.ours_label = { commit_id = commit_id, msg = msg }
+			if is_diff_from then
+				current_conflict.ours.start_line = lnum
 				current_section = "ours"
-				current_conflict.ours = { start_line = i - 1, lines = {} }
-			elseif diff_to_match then
-			-- Continuation of diff label, skip
-			elseif snapshot_match then
-				local commit_id, msg = M.parse_label(line, "")
-				current_conflict.theirs_label = { commit_id = commit_id, msg = msg }
+			elseif is_snapshot then
+				current_conflict.theirs.start_line = lnum
 				current_section = "theirs"
-				current_conflict.theirs = { start_line = i - 1, lines = {} }
-			elseif end_match then
-				current_conflict.end_line = i - 1
+			elseif is_end then
+				current_conflict.end_line = lnum
 				table.insert(conflicts, current_conflict)
 				current_conflict = nil
 				current_section = nil
-			elseif current_section == "ours" then
-				if line:match("^%-%s") then
-					table.insert(current_conflict.ours.lines, { type = "remove", text = line:sub(3) })
-				elseif line:match("^%+%s") then
-					table.insert(current_conflict.ours.lines, { type = "add", text = line:sub(3) })
-				else
-					table.insert(current_conflict.ours.lines, { type = "context", text = line })
-				end
+			elseif current_section == "ours" and not is_diff_to then
+				-- logic for parsing diff lines (+/-)
+				table.insert(current_conflict.ours.lines, line)
 			elseif current_section == "theirs" then
 				table.insert(current_conflict.theirs.lines, line)
 			end
 		end
 	end
-
 	return conflicts
 end
 
-function M.parse_label(line, prefix)
-	local commit_pattern = '([a-z0-9]+)%s+"(.*)"'
-	local commit_id, msg = string.match(line, commit_pattern)
-	return commit_id, msg
+-- Refactored to avoid redundant detection logic
+function M.get_conflict_at_cursor(bufnr)
+	bufnr = bufnr or vim.api.nvim_get_current_buf()
+	local cursor = vim.api.nvim_win_get_cursor(0)
+	local current_line = cursor[1] - 1
+
+	local conflicts = M.detect_conflicts(bufnr)
+	for _, conflict in ipairs(conflicts) do
+		if current_line >= conflict.start_line and current_line <= conflict.end_line then
+			return conflict
+		end
+	end
+	return nil
 end
 
 function M.has_conflicts(bufnr)
 	bufnr = bufnr or vim.api.nvim_get_current_buf()
 	local conflicts = M.detect_conflicts(bufnr)
 	return #conflicts > 0, conflicts
-end
-
-function M.get_conflict_at_cursor(bufnr)
-	bufnr = bufnr or vim.api.nvim_get_current_buf()
-	local cursor = vim.api.nvim_win_get_cursor(0)
-	local line = cursor[1] - 1
-	local conflicts = M.detect_conflicts(bufnr)
-
-	for _, conflict in ipairs(conflicts) do
-		if conflict.start_line <= line and line <= conflict.end_line then
-			return conflict
-		end
-	end
-
-	return nil
 end
 
 function M.count_conflicts(bufnr)
@@ -104,15 +97,29 @@ end
 function M.start_autocmds()
 	local group = vim.api.nvim_create_augroup("JjConflictDetection", { clear = true })
 
-	vim.api.nvim_create_autocmd("BufReadPost", {
+	vim.api.nvim_create_autocmd({ "BufReadPost", "BufWritePost", "TextChanged" }, {
 		group = group,
 		pattern = "*",
 		callback = function(args)
-			local bufnr = args.buf
+			-- Use a small debounce or schedule to prevent lag on rapid typing
 			vim.schedule(function()
-				local has_conflicts, conflicts = M.has_conflicts(bufnr)
-				if has_conflicts then
-					vim.api.nvim_exec_autocmds("User", { pattern = "JjConflictDetected", modeline = false })
+				if not vim.api.nvim_buf_is_valid(args.buf) then
+					return
+				end
+
+				local conflicts = M.detect_conflicts(args.buf)
+				local highlights = require("jj-conflict.highlights")
+
+				highlights.clear_highlights(args.buf)
+
+				if #conflicts > 0 then
+					for _, conflict in ipairs(conflicts) do
+						highlights.highlight_conflict(args.buf, conflict)
+					end
+					vim.api.nvim_exec_autocmds("User", {
+						pattern = "JjConflictDetected",
+						modeline = false,
+					})
 				end
 			end)
 		end,
