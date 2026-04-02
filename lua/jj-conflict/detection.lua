@@ -2,8 +2,8 @@ local M = {}
 
 M.patterns = {
 	start = "^<{7,}.*conflict%s+(%d+)%s+of%s+(%d+)",
-	diff_start = "^%^{7,}.*diff%s+from:",
-	diff_to = "^\\{4,}.*to:",
+	diff_start = "^%{7,}.*diff%s+from:",
+	diff_to = "^\\{7,}.*to:",
 	snapshot_start = "^%+{7,}",
 	end_marker = "^>{7,}.*ends?$",
 }
