@@ -1,5 +1,7 @@
 # jj-conflict.nvim
 
+https://github.com/user-attachments/assets/b587600a-d286-40ec-9954-2531461aa123
+
 A Neovim plugin to visualize and resolve Jujutsu (jj) merge conflicts, inspired by [git-conflict.nvim](https://github.com/akinsho/git-conflict.nvim).
 
 ## Requirements
