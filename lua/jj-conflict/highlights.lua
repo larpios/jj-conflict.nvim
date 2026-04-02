@@ -41,17 +41,17 @@ function M.highlight_conflict(bufnr, conflict, config)
 		local line = vim.api.nvim_buf_get_lines(bufnr, i, i + 1, false)[1] or ""
 
 		if line:match("^<{7,}") or line:match("^>{7,}") then
-			vim.api.nvim_buf_set_extmark(bufnr, ns, i, 0, { hl_group = marker_hl, end_col = 0 })
+			vim.api.nvim_buf_set_extmark(bufnr, ns, i, 0, { hl_group = marker_hl, end_col = -1 })
 		elseif line:match("^%{7,}.*diff%s+from:") then
-			vim.api.nvim_buf_set_extmark(bufnr, ns, i, 0, { hl_group = ours_hl, end_col = 0 })
+			vim.api.nvim_buf_set_extmark(bufnr, ns, i, 0, { hl_group = ours_hl, end_col = -1 })
 		elseif line:match("^\\{7,}.*to:") then
-			vim.api.nvim_buf_set_extmark(bufnr, ns, i, 0, { hl_group = label_hl, end_col = 0 })
+			vim.api.nvim_buf_set_extmark(bufnr, ns, i, 0, { hl_group = label_hl, end_col = -1 })
 		elseif line:match("^%+{7,}") then
-			vim.api.nvim_buf_set_extmark(bufnr, ns, i, 0, { hl_group = theirs_hl, end_col = 0 })
+			vim.api.nvim_buf_set_extmark(bufnr, ns, i, 0, { hl_group = theirs_hl, end_col = -1 })
 		elseif line:match("^%-") then
-			vim.api.nvim_buf_set_extmark(bufnr, ns, i, 0, { hl_group = diff_rem_hl, end_col = 0 })
+			vim.api.nvim_buf_set_extmark(bufnr, ns, i, 0, { hl_group = diff_rem_hl, end_col = -1 })
 		elseif line:match("^%+") and not line:match("^%+{7,}") then
-			vim.api.nvim_buf_set_extmark(bufnr, ns, i, 0, { hl_group = diff_add_hl, end_col = 0 })
+			vim.api.nvim_buf_set_extmark(bufnr, ns, i, 0, { hl_group = diff_add_hl, end_col = -1 })
 		end
 	end
 end
