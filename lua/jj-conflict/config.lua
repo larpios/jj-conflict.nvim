@@ -26,26 +26,26 @@ local M = {}
 
 ---@type JjConflictConfig
 M.default = {
-	default_mappings = true,
-	default_commands = true,
-	notify = true,
+    default_mappings = true,
+    default_commands = true,
+    notify = true,
     desc_prefix = nil,
-	highlights = {
-		ours = "DiffAdd",
-		theirs = "DiffText",
-		marker = "CursorLine",
-		label = "Comment",
-		diff_remove = "DiffDelete",
-		diff_add = "DiffAdd",
-	},
-	mappings = {
-		ours = "Ho",
-		theirs = "Ht",
-		both = "Hb",
-		base = "H0",
-		next = "Hn",
-		prev = "Hp",
-	},
+    highlights = {
+        ours = "DiffAdd",
+        theirs = "DiffText",
+        marker = "CursorLine",
+        label = "Comment",
+        diff_remove = "DiffDelete",
+        diff_add = "DiffAdd",
+    },
+    mappings = {
+        ours = "Ho",
+        theirs = "Ht",
+        both = "Hb",
+        base = "H0",
+        next = "Hn",
+        prev = "Hp",
+    },
 }
 
 M.config = M.default
@@ -53,8 +53,8 @@ M.config = M.default
 ---@param opts? JjConflictConfig
 ---@return JjConflictConfig
 function M.merge(opts)
-	M.config = vim.tbl_deep_extend("force", M.default, opts or {})
-	return M.config
+    M.config = vim.tbl_deep_extend("force", M.default, opts or {})
+    return M.config
 end
 
 return M
