@@ -17,7 +17,8 @@ A Neovim plugin to visualize and resolve Jujutsu (jj) merge conflicts, inspired 
 ```lua
 {
     'larpios/jj-conflict.nvim',
-    version = '*',
+    -- If you want to use the latest tagged version
+    -- version = '*',
     event = { 'BufReadPre', 'BufNewFile' },
     cmd = {
         'JjConflictList',
