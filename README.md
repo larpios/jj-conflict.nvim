@@ -40,6 +40,8 @@ A Neovim plugin to visualize and resolve Jujutsu (jj) merge conflicts, inspired 
 
 ## Configuration
 
+The following options are the default values:
+
 ```lua
 require('jj-conflict').setup({
     -- Whether to automatically setup default mappings
