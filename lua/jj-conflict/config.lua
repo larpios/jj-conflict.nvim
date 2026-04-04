@@ -18,6 +18,7 @@
 ---@field default_mappings boolean Whether to automatically setup default mappings
 ---@field default_commands boolean Whether to automatically setup default commands
 ---@field notify boolean Whether to show notifications
+---@field desc_prefix string? Prefix for keybinding descriptions
 ---@field highlights JjConflictHighlight Highlight groups
 ---@field mappings JjConflictConflictMapping Custom mappings
 
@@ -28,6 +29,7 @@ M.default = {
 	default_mappings = true,
 	default_commands = true,
 	notify = true,
+    desc_prefix = nil,
 	highlights = {
 		ours = "DiffAdd",
 		theirs = "DiffText",

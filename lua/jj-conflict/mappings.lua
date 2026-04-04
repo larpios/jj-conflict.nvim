@@ -23,6 +23,9 @@ function M.setup()
 end
 
 function M.create_buffer_mappings(bufnr)
+	local cfg = config.config
+	local maps = cfg.mappings
+
 	---@class LocalMapOpts: vim.keymap.set.Opts
 	---@field mode? string
 
@@ -37,11 +40,12 @@ function M.create_buffer_mappings(bufnr)
 			opts.mode = nil
 		end
 
+        if cfg.desc_prefix and opts.desc then
+            opts.desc = cfg.desc_prefix .. " " .. opts.desc
+        end
+
 		vim.keymap.set(mode, lhs, rhs, opts)
 	end
-
-	local cfg = config.config
-	local maps = cfg.mappings
 
 	map(maps.ours, "<Cmd>JjConflictChooseOurs<CR>", { desc = "Choose our side of the conflict" })
 	map(maps.theirs, "<Cmd>JjConflictChooseTheirs<CR>", { desc = "Choose their side of the conflict" })

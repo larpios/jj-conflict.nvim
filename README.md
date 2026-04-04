@@ -47,6 +47,8 @@ require('jj-conflict').setup({
 	default_commands = true,
     -- Whether to enable notifications
     notify = true,
+    -- Prefix for keybinding descriptions
+    desc_prefix = nil,
     -- Highlight groups
 	highlights = {
 		ours = "DiffAdd",
