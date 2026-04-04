@@ -2,8 +2,6 @@ local M = {}
 
 local detection = require("jj-conflict.detection")
 local highlights = require("jj-conflict.highlights")
-local navigation = require("jj-conflict.navigation")
-local config = require("jj-conflict.config")
 local util = require("jj-conflict.util")
 
 local function get_chosen_lines(conflict, choice)
@@ -97,6 +95,21 @@ function M.resolve_conflict(conflict, choice)
 	if remaining == 0 then
 		vim.api.nvim_exec_autocmds("User", { pattern = "JjConflictResolved", modeline = false })
 		util.notify("All conflicts resolved!", vim.log.levels.INFO)
+		
+		-- Auto-verify with jj if possible
+		local file = vim.api.nvim_buf_get_name(bufnr)
+		if file ~= "" and vim.fn.executable("jj") == 1 then
+			vim.system({ "jj", "status" }, { text = true }, function(obj)
+				-- This just triggers jj to update its internal state if it hasn't already.
+				-- It doesn't strictly need to notify unless there's an error,
+				-- but having it run ensures the next jj command (like jj log) sees the file as resolved.
+				if obj.code ~= 0 and obj.stderr then
+					vim.schedule(function()
+						util.notify("jj verification failed: " .. obj.stderr, vim.log.levels.WARN)
+					end)
+				end
+			end)
+		end
 	end
 end
 

@@ -46,20 +46,24 @@ function M.list()
 	local conflicts = detection.detect_conflicts(bufnr)
 	local file = vim.api.nvim_buf_get_name(bufnr)
 
-	local qf_list = {}
+	local items = {}
 	for _, conflict in ipairs(conflicts) do
-		table.insert(qf_list, {
+		table.insert(items, {
 			bufnr = bufnr,
+			filename = file,
 			lnum = conflict.start_line + 1,
 			col = 1,
 			text = string.format("Conflict %d", conflict.id),
 		})
 	end
 
-	if #qf_list > 0 then
-		vim.fn.setloclist(0, qf_list, "r")
-		vim.cmd("silent lopen")
-		util.notify(string.format("Found %d conflicts", #conflicts))
+	if #items > 0 then
+		local ui = require("jj-conflict.ui")
+		ui.pick({
+			title = "jj conflicts",
+			items = items,
+		})
+		util.notify(string.format("Found %d conflicts", #conflicts), vim.log.levels.INFO)
 	else
 		util.notify("No conflicts found", vim.log.levels.INFO)
 	end
