@@ -28,20 +28,23 @@ SETUP                                                          *jj-conflict-setu
   require('jj-conflict').setup({
     default_mappings = true,
     default_commands = true,
-    disable_diagnostics = false,
+    notify = true,
+    desc_prefix = nil, -- Prefix for keybinding descriptions (e.g. for which-key)
     highlights = {
       ours = 'DiffAdd',
       theirs = 'DiffText',
       marker = 'CursorLine',
       label = 'Comment',
+      diff_remove = 'DiffDelete',
+      diff_add = 'DiffAdd',
     },
     mappings = {
-      ours = 'o',
-      theirs = 't',
-      both = 'b',
-      none = '0',
-      next = 'n',
-      prev = 'p',
+      ours = 'Ho',
+      theirs = 'Ht',
+      both = 'Hb',
+      base = 'H0',
+      next = 'Hn',
+      prev = 'Hp',
     }
   })
 <
@@ -60,8 +63,8 @@ COMMANDS                                                  *jj-conflict-commands*
 `:JjConflictChooseBoth`                                    *:JjConflictChooseBoth*
   Select both sides of the conflict.
 
-`:JjConflictChooseNone`                                    *:JjConflictChooseNone*
-  Select none of the conflict (remove all content).
+`:JjConflictChooseBase`                                    *:JjConflictChooseBase*
+  Select the base of the conflict (removes all changes).
 
 `:JjConflictNextConflict`                                *:JjConflictNextConflict*
   Jump to the next conflict in the file.
@@ -70,51 +73,86 @@ COMMANDS                                                  *jj-conflict-commands*
   Jump to the previous conflict in the file.
 
 `:JjConflictList`                                                *:JjConflictList*
-  List all conflicts in the location list.
+  List all conflicts in the current buffer using a picker (Telescope/fzf-lua).
+
+`:JjConflictSquash`                                            *:JjConflictSquash*
+  Squash current changes into another revision using `jj squash`.
+
+`:JjConflictResolve`                                          *:JjConflictResolve*
+  Run `jj resolve` for the current buffer.
+
+`:JjConflictStatus`                                            *:JjConflictStatus*
+  Show `jj status` in a picker.
+
+`:JjConflictLog`                                                  *:JjConflictLog*
+  Show `jj log` in a picker.
+
+`:JjConflictDiff`                                                *:JjConflictDiff*
+  Show `jj diff` for the current buffer.
 
 ==============================================================================
 MAPPINGS                                                  *jj-conflict-mappings*
 
 The default buffer-local mappings (when default_mappings = true):
 
-  `co`  - Choose ours
-  `ct`  - choose theirs
-  `cb`  - choose both
-  `c0`  - choose none
-  `]x`  - move to next conflict
-  `[x`  - Move to previous conflict
+  `Ho`  - Choose ours
+  `Ht`  - Choose theirs
+  `Hb`  - Choose both
+  `H0`  - Choose base
+  `Hn`  - Move to next conflict
+  `Hp`  - Move to previous conflict
 
-You can customize these mappings in the setup configuration or set
-default_mappings = false and create your own:
+You can customize these mappings in the setup configuration:
 
 >lua
-  vim.keymap.set('n', 'co', '<Plug>(jj-conflict-ours)')
-  vim.keymap.set('n', 'ct', '<Plug>(jj-conflict-theirs)')
-  vim.keymap.set('n', 'cb', '<Plug>(jj-conflict-both)')
-  vim.keymap.set('n', 'c0', '<Plug>(jj-conflict-base)')
-  vim.keymap.set('n', ']x', '<Plug>(jj-conflict-next-conflict)')
-  vim.keymap.set('n', '[x', '<Plug>(jj-conflict-prev-conflict)')
+  require('jj-conflict').setup({
+    mappings = {
+      ours = '<leader>jo',
+      theirs = '<leader>jt',
+      -- ...
+    }
+  })
+<
+
+WHICH-KEY INTEGRATION                                    *jj-conflict-which-key*
+
+If you use `which-key.nvim`, the default `H` prefix might not show the popup
+immediately because `H` is a built-in Vim motion. To fix this, you can:
+
+1. Explicitly register the `H` group in `which-key`:
+>lua
+  require("which-key").add({
+    { "H", group = "Conflict", mode = "n" },
+  })
+<
+
+2. Change the prefix to something else (like `<leader>j`):
+>lua
+  require('jj-conflict').setup({
+    mappings = {
+      ours = '<leader>jo',
+      -- ...
+    }
+  })
 <
 
 ==============================================================================
 AUTOCOMMANDS                                              *jj-conflict-autocmds*
 
-When a conflict is detected:
+The plugin triggers these User autocommands:
+
+`JjConflictDetected`
+  Triggered when conflicts are detected in a buffer.
+
+`JjConflictResolved`
+  Triggered when all conflicts in a buffer are resolved.
+
+Example usage:
 >lua
   vim.api.nvim_create_autocmd('User', {
     pattern = 'JjConflictDetected',
     callback = function()
-      -- do something
-    end
-  })
-<
-
-When all conflicts are resolved:
->lua
-  vim.api.nvim_create_autocmd('User', {
-    pattern = 'JjConflictResolved',
-    callback = function()
-      -- do something
+      vim.notify("Conflicts detected!")
     end
   })
 <
@@ -147,14 +185,11 @@ The plugin defines these highlight groups:
   `JjConflictDiffAdd`    - Added lines in diffs (+)
   `JjConflictDiffRemove` - Removed lines in diffs (-)
 
-You can customize these in your Neovim config or via the setup() function.
-
 ==============================================================================
 LIMITATIONS                                            *jj-conflict-limitations*
 
-- Currently only supports the default jj "diff" conflict marker style
-- For conflicts with more than 2 sides, resolution picks the first diff + snapshot
-- Does not integrate with jj CLI (future feature)
+- Currently only supports the default jj "diff" conflict marker style.
+- For conflicts with more than 2 sides, resolution picks the first diff + snapshot.
 
 ==============================================================================
 LICENSE                                                    *jj-conflict-license*
@@ -163,4 +198,3 @@ MIT License
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:
-elp:norl:
