@@ -8,6 +8,7 @@ A Neovim plugin to visualize and resolve Jujutsu (jj) merge conflicts, inspired 
 
 - Neovim 0.10+
 - [Jujutsu (jj)](https://github.com/jj-vcs/jj) CLI installed
+- (Optional) [snacks.nvim](https://github.com/folke/snacks.nvim) or [fzf-lua](https://github.com/ibhagwan/fzf-lua) for improved UI pickers and notifications.
 
 ## Installation
 
@@ -25,7 +26,12 @@ A Neovim plugin to visualize and resolve Jujutsu (jj) merge conflicts, inspired 
         'JjConflictChooseOurs',
         'JjConflictChooseTheirs',
         'JjConflictNextConflict',
-        'JjConflictPrevConflict'
+        'JjConflictPrevConflict',
+        'JjConflictSquash',
+        'JjConflictResolve',
+        'JjConflictLog',
+        'JjConflictStatus',
+        'JjConflictDiff',
     },
     config = true
 }
@@ -72,8 +78,30 @@ require('jj-conflict').setup({
 | `:JjConflictChooseNone` | Select none |
 | `:JjConflictNextConflict` | Jump to next conflict |
 | `:JjConflictPrevConflict` | Jump to previous conflict |
-| `:JjConflictList` | List conflicts in location list |
+| `:JjConflictList` | List conflicts in a UI picker |
+| `:JConflictjSquash` | Pick a revision from `jj log` and squash current changes into it |
+| `:JConflictjResolve` | Run `jj resolve` for the current buffer |
+| `:JConflictjLog` | Show `jj log` in a picker |
+| `:JConflictjStatus` | Show modified/conflicted files from `jj status` in a picker |
+| `:JConflictjDiff` | Show `jj diff` for the current buffer |
 
+## Lualine Support
+
+The plugin provides a `statusline` module that optionally exposes the current `jj` workspace ID alongside the conflict count.
+
+```lua
+-- In your lualine config:
+require('lualine').setup({
+  sections = {
+    lualine_c = {
+      {
+        require('jj-conflict.statusline').get_status,
+        cond = function() return require('jj-conflict.api').has_conflicts(0) end,
+      }
+    }
+  }
+})
+```
 
 ## How It Works
 
