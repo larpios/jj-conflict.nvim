@@ -88,23 +88,40 @@ end
 function M.start_autocmds()
 	local group = vim.api.nvim_create_augroup("JjConflictDetection", { clear = true })
 
-	vim.api.nvim_create_autocmd({ "BufReadPost", "BufWritePost", "TextChanged", "BufEnter" }, {
+	vim.api.nvim_create_autocmd({ "BufReadPost", "BufWritePost", "TextChanged", "BufEnter", "BufWinEnter", "FileType" }, {
 		group = group,
 		pattern = "*",
 		callback = function(args)
+			local bufnr = args.buf
+			if not vim.api.nvim_buf_is_valid(bufnr) then
+				return
+			end
+
+			-- Modern pickers use hidden nofile buffers and asynchronously inject text 
+			-- via nvim_buf_set_lines, which bypasses normal TextChanged/BufRead events.
+			-- We robustly attach an on_lines listener to track these updates.
+			if vim.bo[bufnr].buftype == "nofile" and not vim.b[bufnr].jj_conflict_attached then
+				vim.b[bufnr].jj_conflict_attached = true
+				vim.api.nvim_buf_attach(bufnr, false, {
+					on_lines = function(_, buf)
+						vim.schedule(function()
+							if vim.api.nvim_buf_is_valid(buf) then
+								require("jj-conflict.highlights").apply_highlights(buf)
+							end
+						end)
+					end
+				})
+			end
+
 			vim.schedule(function()
-				if not vim.api.nvim_buf_is_valid(args.buf) then
+				if not vim.api.nvim_buf_is_valid(bufnr) then
 					return
 				end
 
-				local conflicts = M.detect_conflicts(args.buf)
-				local highlights = require("jj-conflict.highlights")
-				highlights.clear_highlights(args.buf)
+				require("jj-conflict.highlights").apply_highlights(bufnr)
 
-				if #conflicts > 0 then
-					for _, conflict in ipairs(conflicts) do
-						highlights.highlight_conflict(args.buf, conflict)
-					end
+				local detection = require("jj-conflict.detection")
+				if detection.count_conflicts(bufnr) > 0 then
 					vim.api.nvim_exec_autocmds("User", {
 						pattern = "JjConflictDetected",
 						modeline = false,

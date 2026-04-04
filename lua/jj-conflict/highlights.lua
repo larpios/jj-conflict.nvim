@@ -46,7 +46,7 @@ function M.highlight_conflict(bufnr, conflict)
 				end_col = #line,
 				hl_group = hl_group,
 				hl_eol = true,
-				priority = 100,
+				priority = 1000,
 			})
 		end
 	end
@@ -54,6 +54,18 @@ end
 
 function M.clear_highlights(bufnr)
 	vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
+end
+
+function M.apply_highlights(bufnr)
+	if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+		return
+	end
+	local detection = require("jj-conflict.detection")
+	local conflicts = detection.detect_conflicts(bufnr)
+	M.clear_highlights(bufnr)
+	for _, conflict in ipairs(conflicts) do
+		M.highlight_conflict(bufnr, conflict)
+	end
 end
 
 return M
