@@ -46,7 +46,7 @@ function M.create_buffer_mappings(bufnr)
 	map(maps.ours, "<Cmd>JjConflictChooseOurs<CR>", { desc = "Choose our side of the conflict" })
 	map(maps.theirs, "<Cmd>JjConflictChooseTheirs<CR>", { desc = "Choose their side of the conflict" })
 	map(maps.both, "<Cmd>JjConflictChooseBoth<CR>", { desc = "Choose both sides of the conflict" })
-	map(maps.none, "<Cmd>JjConflictChooseNone<CR>", { desc = "Choose none of the conflict" })
+	map(maps.base, "<Cmd>JjConflictChooseBase<CR>", { desc = "Choose base of the conflict" })
 	map(maps.next, "<Cmd>JjConflictNextConflict<CR>", { desc = "Jump to next conflict" })
 	map(maps.prev, "<Cmd>JjConflictPrevConflict<CR>", { desc = "Jump to previous conflict" })
 end

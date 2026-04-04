@@ -2,7 +2,7 @@
 ---@field ours string Mapping for "ours" side of the conflict
 ---@field theirs string Mapping for "theirs" side of the conflict
 ---@field both string Mapping for both sides of the conflict
----@field none string Mapping for none of the conflict
+---@field base string Mapping for base of the conflict
 ---@field next string Mapping for next conflict
 ---@field prev string Mapping for previous conflict
 
@@ -40,7 +40,7 @@ M.default = {
 		ours = "Ho",
 		theirs = "Ht",
 		both = "Hb",
-		none = "H0",
+		base = "H0",
 		next = "Hn",
 		prev = "Hp",
 	},

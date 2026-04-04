@@ -13,9 +13,9 @@ function M.setup()
 		require("jj-conflict.resolution").choose_both()
 	end, { range = true, desc = "Choose both sides of the conflict" })
 
-	vim.api.nvim_create_user_command("JjConflictChooseNone", function()
-		require("jj-conflict.resolution").choose_none()
-	end, { range = true, desc = "Choose none of the conflict" })
+	vim.api.nvim_create_user_command("JjConflictChooseBase", function()
+		require("jj-conflict.resolution").choose_base()
+	end, { range = true, desc = "Choose base of the conflict" })
 
 	vim.api.nvim_create_user_command("JjConflictNextConflict", function()
 		require("jj-conflict.navigation").next()

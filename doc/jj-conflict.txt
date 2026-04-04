@@ -91,7 +91,7 @@ default_mappings = false and create your own:
   vim.keymap.set('n', 'co', '<Plug>(jj-conflict-ours)')
   vim.keymap.set('n', 'ct', '<Plug>(jj-conflict-theirs)')
   vim.keymap.set('n', 'cb', '<Plug>(jj-conflict-both)')
-  vim.keymap.set('n', 'c0', '<Plug>(jj-conflict-none)')
+  vim.keymap.set('n', 'c0', '<Plug>(jj-conflict-base)')
   vim.keymap.set('n', ']x', '<Plug>(jj-conflict-next-conflict)')
   vim.keymap.set('n', '[x', '<Plug>(jj-conflict-prev-conflict)')
 <
@@ -163,3 +163,4 @@ MIT License
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:
+elp:norl:

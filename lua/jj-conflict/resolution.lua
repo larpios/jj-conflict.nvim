@@ -33,6 +33,22 @@ local function get_chosen_lines(conflict, choice)
 		end
 	end
 
+	local function resolve_base()
+		if conflict.ours and conflict.ours.lines then
+			for _, line in ipairs(conflict.ours.lines) do
+				local prefix = line:sub(1, 1)
+				if prefix == "-" or prefix == " " then
+					table.insert(lines, line:sub(2))
+				elseif prefix == "+" then
+					-- Do nothing, drop this line
+				else
+					-- Fallback for any malformed lines without a prefix
+					table.insert(lines, line)
+				end
+			end
+		end
+	end
+
 	if choice == "ours" then
 		resolve_ours()
 	elseif choice == "theirs" then
@@ -40,8 +56,8 @@ local function get_chosen_lines(conflict, choice)
 	elseif choice == "both" then
 		resolve_ours()
 		resolve_theirs()
-	elseif choice == "none" then
-		-- Nothing, return empty table to delete the block
+	elseif choice == "base" then
+		resolve_base()
 	end
 
 	return lines
@@ -74,13 +90,13 @@ function M.choose_both()
 	M.resolve_conflict(conflict, "both")
 end
 
-function M.choose_none()
+function M.choose_base()
 	local conflict = detection.get_conflict_at_cursor()
 	if not conflict then
 		util.notify("No conflict at cursor", vim.log.levels.WARN)
 		return
 	end
-	M.resolve_conflict(conflict, "none")
+	M.resolve_conflict(conflict, "base")
 end
 
 function M.resolve_conflict(conflict, choice)

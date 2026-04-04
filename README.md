@@ -61,7 +61,7 @@ require('jj-conflict').setup({
 		ours = "Ho",
 		theirs = "Ht",
 		both = "Hb",
-		none = "H0",
+		base = "H0",
 		next = "Hn",
 		prev = "Hp",
 	},
