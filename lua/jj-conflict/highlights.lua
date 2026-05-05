@@ -8,6 +8,8 @@ M.ns = ns
 local default_highlights = {
     Ours = { link = "DiffAdd" },
     Theirs = { link = "DiffText" },
+    OursSign = { link = "DiagnosticSignInfo" },
+    TheirsSign = { link = "DiagnosticSignHint" },
     Marker = { link = "Title" },
     Label = { link = "Comment" },
     DiffRemove = { link = "DiffDelete" },
@@ -49,7 +51,7 @@ function M.highlight_conflict(bufnr, conflict)
             end
             if conf.signs then
                 extmark_opts.sign_text = "O>"
-                extmark_opts.sign_hl_group = "JjConflictOurs"
+                extmark_opts.sign_hl_group = "JjConflictOursSign"
             end
         elseif line:find([[^\\\\\\\]]) then
             hl_group = "JjConflictLabel"
@@ -65,7 +67,7 @@ function M.highlight_conflict(bufnr, conflict)
             end
             if conf.signs then
                 extmark_opts.sign_text = "T>"
-                extmark_opts.sign_hl_group = "JjConflictTheirs"
+                extmark_opts.sign_hl_group = "JjConflictTheirsSign"
             end
         elseif line:sub(1, 1) == "-" then
             hl_group = "JjConflictDiffRemove"

@@ -99,9 +99,9 @@ function M.choose_base()
     M.resolve_conflict(conflict, "base")
 end
 
-function M.resolve_conflict(conflict, choice)
-    local bufnr = vim.api.nvim_get_current_buf()
-    local lines = get_chosen_lines(conflict, choice)
+function M.resolve_conflict(conflict, choice, bufnr)
+    bufnr = bufnr or vim.api.nvim_get_current_buf()
+    local lines = M.get_chosen_lines(conflict, choice)
 
     vim.api.nvim_buf_set_lines(bufnr, conflict.start_line, conflict.end_line + 1, false, lines)
 

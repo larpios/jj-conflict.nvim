@@ -36,15 +36,22 @@ function M.open()
         local p_theirs = temp_file(theirs, "_theirs." .. ft)
 
         -- Invoke codediff merge if available, otherwise fallback
-        -- Note: codediff.nvim API might vary, but :CodeDiffMerge is the standard command
-        -- Some versions use codediff.merge(base, ours, theirs)
         if type(codediff.merge) == "function" then
-            codediff.merge(p_base, p_ours, p_theirs)
-            return
-        else
-            vim.cmd(string.format("CodeDiffMerge %s %s %s", p_base, p_ours, p_theirs))
-            return
+            local ok, err = pcall(codediff.merge, p_base, p_ours, p_theirs)
+            if ok then
+                return
+            else
+                util.notify("codediff.merge failed: " .. tostring(err), vim.log.levels.WARN)
+            end
+        elseif vim.fn.exists(":CodeDiffMerge") == 2 then
+            local ok, err = pcall(vim.cmd, string.format("CodeDiffMerge %s %s %s", p_base, p_ours, p_theirs))
+            if ok then
+                return
+            else
+                util.notify("CodeDiffMerge command failed: " .. tostring(err), vim.log.levels.WARN)
+            end
         end
+        util.notify("codediff.nvim integration failed, falling back to native diff", vim.log.levels.INFO)
     end
 
     -- Fallback to native 3-way split
