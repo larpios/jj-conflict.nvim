@@ -4,7 +4,7 @@ local detection = require("jj-conflict.detection")
 local highlights = require("jj-conflict.highlights")
 local util = require("jj-conflict.util")
 
-local function get_chosen_lines(conflict, choice)
+function M.get_chosen_lines(conflict, choice)
     local lines = {}
 
     local function resolve_ours()

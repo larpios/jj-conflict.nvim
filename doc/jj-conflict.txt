@@ -29,6 +29,9 @@ SETUP                                                          *jj-conflict-setu
     default_mappings = true,
     default_commands = true,
     notify = true,
+    signs = true,      -- Show gutter signs (O/T/!!) for conflicts
+    virt_text = true,  -- Show rich virtual text (commit IDs/messages)
+    use_codediff = true, -- Use codediff.nvim for 3-way splits if available
     desc_prefix = nil, -- Prefix for keybinding descriptions (e.g. for which-key)
     highlights = {
       ours = 'DiffAdd',
@@ -89,6 +92,9 @@ COMMANDS                                                  *jj-conflict-commands*
 
 `:JjConflictDiff`                                                *:JjConflictDiff*
   Show `jj diff` for the current buffer.
+
+`:JjConflictDiffsplit`                                      *:JjConflictDiffsplit*
+  Open a 3-way diffsplit (Ours | Base | Theirs) for the current conflict.
 
 ==============================================================================
 MAPPINGS                                                  *jj-conflict-mappings*

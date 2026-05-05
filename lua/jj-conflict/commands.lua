@@ -48,6 +48,10 @@ function M.setup()
     vim.api.nvim_create_user_command("JjConflictDiff", function()
         require("jj-conflict.jj").diff()
     end, { desc = "Show jj diff for the current buffer" })
+
+    vim.api.nvim_create_user_command("JjConflictDiffsplit", function()
+        require("jj-conflict.diffsplit").open()
+    end, { desc = "Open 3-way diffsplit for the current conflict" })
 end
 
 return M

@@ -1,5 +1,7 @@
 local M = {}
 
+local config = require("jj-conflict.config")
+
 local ns = vim.api.nvim_create_namespace("jj-conflict")
 M.ns = ns
 
@@ -20,21 +22,51 @@ end
 function M.highlight_conflict(bufnr, conflict)
     local start_line = conflict.start_line
     local end_line = conflict.end_line
+    local conf = config.config
 
     vim.api.nvim_buf_clear_namespace(bufnr, ns, start_line, end_line + 1)
 
     for i = start_line, end_line do
         local line = vim.api.nvim_buf_get_lines(bufnr, i, i + 1, false)[1] or ""
         local hl_group = nil
+        local extmark_opts = {
+            hl_eol = true,
+            priority = 1000,
+        }
 
         if line:find("^<<<<<<<") or line:find("^>>>>>>>") then
             hl_group = "JjConflictMarker"
+            if conf.signs then
+                extmark_opts.sign_text = "!!"
+                extmark_opts.sign_hl_group = "JjConflictMarker"
+            end
         elseif line:find("^%%%%%%%%%%%%%%") then
             hl_group = "JjConflictOurs"
+            if conf.virt_text and conflict.ours.commit then
+                extmark_opts.virt_text = {
+                    { " (Commit: " .. conflict.ours.commit .. " - " .. conflict.ours.message .. ")", "JjConflictLabel" },
+                }
+            end
+            if conf.signs then
+                extmark_opts.sign_text = "O>"
+                extmark_opts.sign_hl_group = "JjConflictOurs"
+            end
         elseif line:find([[^\\\\\\\]]) then
             hl_group = "JjConflictLabel"
         elseif line:find("^%+%+%+%+%+%+%+") then
             hl_group = "JjConflictTheirs"
+            if conf.virt_text and conflict.theirs.commit then
+                extmark_opts.virt_text = {
+                    {
+                        " (Commit: " .. conflict.theirs.commit .. " - " .. conflict.theirs.message .. ")",
+                        "JjConflictLabel",
+                    },
+                }
+            end
+            if conf.signs then
+                extmark_opts.sign_text = "T>"
+                extmark_opts.sign_hl_group = "JjConflictTheirs"
+            end
         elseif line:sub(1, 1) == "-" then
             hl_group = "JjConflictDiffRemove"
         elseif line:sub(1, 1) == "+" and not line:find("^%+%+%+%+%+%+%+") then
@@ -42,12 +74,9 @@ function M.highlight_conflict(bufnr, conflict)
         end
 
         if hl_group then
-            vim.api.nvim_buf_set_extmark(bufnr, ns, i, 0, {
-                end_col = #line,
-                hl_group = hl_group,
-                hl_eol = true,
-                priority = 1000,
-            })
+            extmark_opts.hl_group = hl_group
+            extmark_opts.end_col = #line
+            vim.api.nvim_buf_set_extmark(bufnr, ns, i, 0, extmark_opts)
         end
     end
 end

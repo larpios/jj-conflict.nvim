@@ -1,7 +1,14 @@
 local M = {}
 
 function M.parse_label(line)
-    local commit_id, msg = string.match(line, '([a-z0-9]+)%s+"?([^"]*)"?')
+    -- Handle lines like:
+    -- %%%%%%% diff from: abc123 "base commit"
+    -- +++++++ ghi789 "their commit"
+    local commit_id, msg = string.match(line, "([a-z0-9]+)%s+\"([^\"]+)\"")
+    if not commit_id then
+        -- Fallback for simpler markers
+        commit_id, msg = string.match(line, "([a-z0-9]+)%s+(.*)")
+    end
     return commit_id or "unknown", msg or ""
 end
 
@@ -38,9 +45,15 @@ function M.detect_conflicts(bufnr)
         elseif current_conflict then
             if is_diff_from then
                 current_conflict.ours.start_line = lnum
+                local cid, msg = M.parse_label(line)
+                current_conflict.ours.commit = cid
+                current_conflict.ours.message = msg
                 current_section = "ours"
             elseif is_snapshot then
                 current_conflict.theirs.start_line = lnum
+                local cid, msg = M.parse_label(line)
+                current_conflict.theirs.commit = cid
+                current_conflict.theirs.message = msg
                 current_section = "theirs"
             elseif is_end then
                 current_conflict.end_line = lnum
@@ -51,6 +64,8 @@ function M.detect_conflicts(bufnr)
                 -- Skip the 'to:' marker line, but capture the actual diff lines
                 if not is_diff_to then
                     table.insert(current_conflict.ours.lines, line)
+                else
+                    -- Optionally parse the 'to' commit if needed, but 'from' is usually enough
                 end
             elseif current_section == "theirs" then
                 table.insert(current_conflict.theirs.lines, line)

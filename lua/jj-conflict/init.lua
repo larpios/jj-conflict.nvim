@@ -16,6 +16,7 @@ function M.setup(opts)
         require("jj-conflict.mappings").setup()
     end
 
+    require("jj-conflict.lsp").setup()
     require("jj-conflict.detection").start_autocmds()
 end
 

@@ -18,6 +18,9 @@
 ---@field default_mappings boolean Whether to automatically setup default mappings
 ---@field default_commands boolean Whether to automatically setup default commands
 ---@field notify boolean Whether to show notifications
+---@field signs boolean Whether to show signs in the gutter
+---@field virt_text boolean Whether to show rich virtual text for commits
+---@field use_codediff boolean Whether to use codediff.nvim for 3-way splits if available
 ---@field desc_prefix string? Prefix for keybinding descriptions
 ---@field highlights JjConflictHighlight Highlight groups
 ---@field mappings JjConflictConflictMapping Custom mappings
@@ -29,6 +32,9 @@ M.default = {
     default_mappings = true,
     default_commands = true,
     notify = true,
+    signs = true,
+    virt_text = true,
+    use_codediff = true,
     desc_prefix = nil,
     highlights = {
         ours = "DiffAdd",
